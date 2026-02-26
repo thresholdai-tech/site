@@ -276,12 +276,16 @@ body {
 .status-badge {
   animation: status-cycle 4s ease-in-out infinite;
   padding: 6px 16px;
+  min-width: 148px;
   border-radius: 8px;
   border: 1px solid;
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.8rem;
   font-weight: 600;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 @keyframes status-text-cycle {
   0%, 10% { opacity: 1; }
@@ -300,9 +304,18 @@ body {
   0%, 60% { opacity: 0; }
   75%, 100% { opacity: 1; }
 }
-.status-text-1 { animation: status-text-cycle 4s ease-in-out infinite; position: absolute; }
-.status-text-2 { animation: status-text-cycle-2 4s ease-in-out infinite; position: absolute; }
-.status-text-3 { animation: status-text-cycle-3 4s ease-in-out infinite; position: absolute; }
+.status-text-1, .status-text-2, .status-text-3 {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  line-height: 1;
+}
+.status-text-1 { animation: status-text-cycle 4s ease-in-out infinite; }
+.status-text-2 { animation: status-text-cycle-2 4s ease-in-out infinite; }
+.status-text-3 { animation: status-text-cycle-3 4s ease-in-out infinite; }
 
 /* --- Timeline bar --- */
 @keyframes timeline-fill {
@@ -347,6 +360,29 @@ body {
   stroke-dasharray: 400;
   stroke-dashoffset: 400;
   animation: sparkline-draw 3s ease forwards;
+}
+.spark-label {
+  position: absolute;
+  transform: translateX(-50%);
+  font-size: 0.62rem;
+  font-family: 'JetBrains Mono', monospace;
+  white-space: nowrap;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(8,12,20,0.78);
+  border: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.spark-label-failure {
+  color: #EF4444;
+  left: calc(300 / 700 * 100%);
+  top: 98px;
+}
+.spark-label-success {
+  color: #10B981;
+  left: calc(380 / 700 * 100%);
+  top: 8px;
 }
 @keyframes sparkline-draw {
   to { stroke-dashoffset: 0; }
@@ -551,15 +587,39 @@ h3 { letter-spacing: -0.03em; }
 
 /* Additional responsive fixes */
 @media (max-width: 768px) {
-  .hero-headline { font-size: 2.5rem !important; }
+  .hero-headline { font-size: 2.2rem !important; }
   .nav-links-desktop { display: none !important; }
   .hamburger { display: flex !important; }
+  nav .btn-primary[aria-label="Get Notified"] { display: none !important; }
+  .lang-switcher { margin-right: 0 !important; }
   .hero-two-col { flex-direction: column !important; }
-  .node-graph-wrap { max-width: 100% !important; margin-top: 40px; }
+  .hero-two-col { gap: 32px !important; }
+  .node-graph-wrap {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    max-width: 360px !important;
+    margin: 24px auto 0 !important;
+  }
   .pilot-flex { flex-direction: column !important; }
+  .pilot-flex > div { width: 100% !important; }
   .dashboard-flex { flex-direction: column !important; }
+  .dashboard-flex > div { flex: 1 1 auto !important; width: 100% !important; }
+  .dashboard-flex > div:first-child {
+    border-right: none !important;
+    border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+  }
+  .bento-grid > .glass-card { padding: 20px !important; }
+  #deliverablesCard { padding: 24px !important; }
+  .cta-card { padding: 40px 24px !important; }
   .footer-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
   .quote-text { font-size: 1.3rem !important; }
+  .spark-label { font-size: 0.56rem; padding: 2px 6px; }
+  .spark-label-failure { top: 100px; }
+  .spark-label-success { top: 10px; }
+}
+@media (max-width: 420px) {
+  .hero-headline { font-size: 1.95rem !important; line-height: 1.12 !important; }
+  .section-pad { padding: 64px 0 !important; }
 }
 @media (min-width: 769px) {
   .hamburger { display: none !important; }
@@ -621,7 +681,7 @@ h3 { letter-spacing: -0.03em; }
         <a href="index.html" class="lang-btn active" aria-label="English">EN</a>
         <a href="tr.html" class="lang-btn" aria-label="Türkçe'ye geç">TR</a>
       </div>
-      <a href="#cta" class="btn-primary" style="padding:10px 22px;font-size:0.85rem;border-radius:10px;" aria-label="Get Notified">Get Notified</a>
+      <a href="https://mail.google.com/mail/?view=cm&fs=1&to=thresholdai.tr@gmail.com&su=Waitlist" class="btn-primary" style="padding:10px 22px;font-size:0.85rem;border-radius:10px;" aria-label="Get Notified">Get Notified</a>
       <!-- Hamburger -->
       <button class="hamburger" id="hamburgerBtn" style="display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:8px;" aria-label="Open menu" aria-expanded="false">
         <span style="display:block;width:22px;height:2px;background:#F1F5F9;border-radius:2px;transition:transform 0.3s ease;"></span>
@@ -643,7 +703,7 @@ h3 { letter-spacing: -0.03em; }
   <a href="#architecture" class="mobile-nav-link">Architecture</a>
   <a href="#roi" class="mobile-nav-link">Roadmap</a>
   <a href="#cta" class="mobile-nav-link">Get Notified</a>
-  <a href="#cta" class="btn-primary" style="margin-top:16px;">Get Notified</a>
+  <a href="https://mail.google.com/mail/?view=cm&fs=1&to=thresholdai.tr@gmail.com&su=Waitlist" class="btn-primary" style="margin-top:16px;">Get Notified</a>
 </div>
 
 
@@ -672,7 +732,7 @@ h3 { letter-spacing: -0.03em; }
           Move beyond reactive decisions. Deploy a multi-agent network that continuously classifies production waste (scrap/fire), identifies root causes across your production line, and autonomously prescribes the optimal corrective action — before costs compound.
         </p>
         <div class="reveal" style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:32px;">
-          <a href="#cta" class="btn-primary" aria-label="Join the Waitlist">
+          <a href="https://mail.google.com/mail/?view=cm&fs=1&to=thresholdai.tr@gmail.com&su=Waitlist" class="btn-primary" aria-label="Join the Waitlist">
             Join the Waitlist
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
           </a>
@@ -778,9 +838,9 @@ h3 { letter-spacing: -0.03em; }
         </div>
         <!-- Status Animation -->
         <div style="background:rgba(0,0,0,0.3);border-radius:12px;padding:24px;">
-          <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
+          <div style="display:flex;align-items:center;gap:16px;row-gap:8px;flex-wrap:wrap;margin-bottom:20px;">
             <span style="color:#475569;font-family:'JetBrains Mono',monospace;font-size:0.75rem;">LOOM-4 STATUS</span>
-            <div class="status-badge" style="position:relative;min-width:110px;text-align:center;height:28px;">
+            <div class="status-badge" style="position:relative;text-align:center;height:28px;">
               <span class="status-text-1">● WASTE DETECTED</span>
               <span class="status-text-2">↻ CLASSIFYING...</span>
               <span class="status-text-3">✓ ACTION ISSUED</span>
@@ -856,7 +916,7 @@ h3 { letter-spacing: -0.03em; }
           <h3 style="font-size:1.05rem;font-weight:700;">Full Observability Stack</h3>
         </div>
         <div style="position:relative;height:120px;overflow:hidden;">
-          <svg width="100%" height="120" viewBox="0 0 700 120" preserveAspectRatio="none" fill="none">
+          <svg width="100%" height="120" viewBox="0 0 700 120" preserveAspectRatio="none" fill="none" style="display:block;">
             <!-- Grid lines -->
             <line x1="0" y1="30" x2="700" y2="30" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
             <line x1="0" y1="60" x2="700" y2="60" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
@@ -877,10 +937,10 @@ h3 { letter-spacing: -0.03em; }
             </defs>
           </svg>
           <!-- Labels -->
-          <div style="position:absolute;top:78px;left:calc(300 / 700 * 100% - 40px);font-size:0.62rem;color:#EF4444;font-family:'JetBrains Mono',monospace;white-space:nowrap;">
+          <div class="spark-label spark-label-failure">
             ↓ Loom 4 Failure
           </div>
-          <div style="position:absolute;top:10px;left:calc(380 / 700 * 100% - 20px);font-size:0.62rem;color:#10B981;font-family:'JetBrains Mono',monospace;white-space:nowrap;">
+          <div class="spark-label spark-label-success">
             ↑ Auto-Resolved
           </div>
         </div>
@@ -1076,7 +1136,7 @@ h3 { letter-spacing: -0.03em; }
       <p style="color:#94A3B8;font-size:1rem;line-height:1.7;margin-bottom:36px;max-width:480px;margin-left:auto;margin-right:auto;">
         We're building autonomous waste intelligence for modern manufacturing. Join our waitlist for early access.
       </p>
-      <a href="#" class="btn-primary" style="font-size:1.05rem;padding:16px 36px;" aria-label="Join the Waitlist">
+      <a href="https://mail.google.com/mail/?view=cm&fs=1&to=thresholdai.tr@gmail.com&su=Waitlist" class="btn-primary" style="font-size:1.05rem;padding:16px 36px;" aria-label="Join the Waitlist">
         Join the Waitlist
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </a>
@@ -1124,7 +1184,7 @@ h3 { letter-spacing: -0.03em; }
       <div>
         <h4 style="font-size:0.8rem;font-weight:600;color:#94A3B8;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:16px;">Contact</h4>
         <div style="display:flex;flex-direction:column;gap:10px;">
-          <a href="mailto:thresholdai.tr@gmail.com" class="footer-link">Mail</a>
+            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=thresholdai.tr@gmail.com" class="footer-link" target="_blank" rel="noopener noreferrer">Mail</a>
           <a href="https://www.linkedin.com/company/thresholdai-tech" class="footer-link">LinkedIn</a>
           <a href="https://x.com/thresholai_tr" class="footer-link">Twitter / X</a>
         </div>

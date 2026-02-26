@@ -581,15 +581,36 @@ h3 { letter-spacing: -0.03em; }
 
 /* Additional responsive fixes */
 @media (max-width: 768px) {
-  .hero-headline { font-size: 2.5rem !important; }
+  .hero-headline { font-size: 2.2rem !important; }
   .nav-links-desktop { display: none !important; }
   .hamburger { display: flex !important; }
+  nav .btn-primary[aria-label="Haberdar Ol"] { display: none !important; }
+  .lang-switcher { margin-right: 0 !important; }
   .hero-two-col { flex-direction: column !important; }
-  .node-graph-wrap { max-width: 100% !important; margin-top: 40px; }
+  .hero-two-col { gap: 32px !important; }
+  .node-graph-wrap {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    max-width: 360px !important;
+    margin: 24px auto 0 !important;
+  }
   .pilot-flex { flex-direction: column !important; }
+  .pilot-flex > div { width: 100% !important; }
   .dashboard-flex { flex-direction: column !important; }
+  .dashboard-flex > div { flex: 1 1 auto !important; width: 100% !important; }
+  .dashboard-flex > div:first-child {
+    border-right: none !important;
+    border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+  }
+  .bento-grid > .glass-card { padding: 20px !important; }
+  #deliverablesCard { padding: 24px !important; }
+  .cta-card { padding: 40px 24px !important; }
   .footer-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
   .quote-text { font-size: 1.3rem !important; }
+}
+@media (max-width: 420px) {
+  .hero-headline { font-size: 1.95rem !important; line-height: 1.12 !important; }
+  .section-pad { padding: 64px 0 !important; }
 }
 @media (min-width: 769px) {
   .hamburger { display: none !important; }
@@ -621,7 +642,7 @@ h3 { letter-spacing: -0.03em; }
         <a href="index.html" class="lang-btn" aria-label="Switch to English">EN</a>
         <a href="tr.html" class="lang-btn active" aria-label="Türkçe'ye geç">TR</a>
       </div>
-      <a href="#cta" class="btn-primary" style="padding:10px 22px;font-size:0.85rem;border-radius:10px;" aria-label="Haberdar Ol">Haberdar Ol</a>
+      <a href="https://mail.google.com/mail/?view=cm&fs=1&to=thresholdai.tr@gmail.com&su=Waitlist" class="btn-primary" style="padding:10px 22px;font-size:0.85rem;border-radius:10px;" aria-label="Haberdar Ol">Haberdar Ol</a>
       <!-- Hamburger -->
       <button class="hamburger" id="hamburgerBtn" style="display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:8px;" aria-label="Menüyü aç" aria-expanded="false">
         <span style="display:block;width:22px;height:2px;background:#F1F5F9;border-radius:2px;transition:transform 0.3s ease;"></span>
@@ -643,7 +664,7 @@ h3 { letter-spacing: -0.03em; }
   <a href="#architecture" class="mobile-nav-link">Mimari</a>
   <a href="#roi" class="mobile-nav-link">Yol Haritası</a>
   <a href="#cta" class="mobile-nav-link">Haberdar Ol</a>
-  <a href="#cta" class="btn-primary" style="margin-top:16px;">Haberdar Ol</a>
+  <a href="https://mail.google.com/mail/?view=cm&fs=1&to=thresholdai.tr@gmail.com&su=Waitlist" class="btn-primary" style="margin-top:16px;">Haberdar Ol</a>
 </div>
 
 
@@ -672,7 +693,7 @@ h3 { letter-spacing: -0.03em; }
           Reaktif kararların ötesine geçin. Üretim firelerini (hurda/fire) sürekli sınıflandıran, üretim hattınızda kök nedenleri tespit eden ve maliyetler birikmeden optimal düzeltici aksiyonu otonom olarak öneren çoklu ajan ağını keşfedin.
         </p>
         <div class="reveal" style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:32px;">
-          <a href="#cta" class="btn-primary" aria-label="Bekleme Listesine Katıl">
+          <a href="https://mail.google.com/mail/?view=cm&fs=1&to=thresholdai.tr@gmail.com&su=Waitlist" class="btn-primary" aria-label="Bekleme Listesine Katıl">
             Bekleme Listesine Katıl
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
           </a>
@@ -1073,7 +1094,7 @@ h3 { letter-spacing: -0.03em; }
       <p style="color:#94A3B8;font-size:1rem;line-height:1.7;margin-bottom:36px;max-width:480px;margin-left:auto;margin-right:auto;">
         Modern üretim için otonom fire zekası inşa ediyoruz. Erken erişim için bekleme listemize katılın.
       </p>
-      <a href="#" class="btn-primary" style="font-size:1.05rem;padding:16px 36px;" aria-label="Bekleme Listesine Katıl">
+      <a href="https://mail.google.com/mail/?view=cm&fs=1&to=thresholdai.tr@gmail.com&su=Waitlist" class="btn-primary" style="font-size:1.05rem;padding:16px 36px;" aria-label="Bekleme Listesine Katıl">
         Bekleme Listesine Katıl
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </a>
