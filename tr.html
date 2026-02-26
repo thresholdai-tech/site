@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Threshold AI — Fabrika Zeminleri Kendi Kendine Düşünür</title>
+<meta name="description" content="Üretim için dünyanın ilk otonom, kendi kendini iyileştiren Çoklu Ajan Sistemi altyapısı. Fabrika arızalarından hızlı otonom kurtarma.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        outfit: ['Outfit', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
+      },
+      colors: {
+        bg: { deep: '#080C14', surface: '#0D1117' },
+        accent: { indigo: '#6366F1', cyan: '#22D3EE', purple: '#A855F7' },
+        success: '#10B981',
+        error: '#EF4444',
+        warning: '#F59E0B',
+        txt: { primary: '#F1F5F9', secondary: '#94A3B8', muted: '#475569' },
+      }
+    }
+  }
+}
+</script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Outfit', sans-serif;
+  background: #080C14;
+  color: #F1F5F9;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* --- Scrollbar --- */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #080C14; }
+::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+
+/* --- Gradient Text --- */
+.gradient-text {
+  background: linear-gradient(135deg, #6366F1, #22D3EE);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.gradient-text-purple {
+  background: linear-gradient(135deg, #A855F7, #6366F1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* --- Glass Card --- */
+.glass-card {
+  background: rgba(255,255,255,0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 16px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.glass-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(99,102,241,0.2);
+  box-shadow: 0 0 40px rgba(99,102,241,0.1);
+}
+
+/* --- Navbar --- */
+.navbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: rgba(8,12,20,0.6);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+.navbar.scrolled {
+  background: rgba(8,12,20,0.95);
+  border-bottom-color: rgba(255,255,255,0.08);
+}
+.nav-link {
+  color: #94A3B8;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: color 0.2s ease;
+  text-decoration: none;
+}
+.nav-link:hover { color: #F1F5F9; }
+
+/* --- Buttons --- */
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 28px;
+  background: #6366F1;
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 0 20px rgba(99,102,241,0.2);
+  text-decoration: none;
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 40px rgba(99,102,241,0.35);
+}
+.btn-ghost {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 28px;
+  background: transparent;
+  color: #94A3B8;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 500;
+  font-size: 0.95rem;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+  text-decoration: none;
+}
+.btn-ghost:hover {
+  border-color: rgba(255,255,255,0.25);
+  color: #F1F5F9;
+}
+
+/* --- Hero Grid Background --- */
+.hero-grid {
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 60px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 60px);
+}
+
+/* --- Noise Overlay --- */
+.noise-overlay {
+  position: absolute; inset: 0; pointer-events: none; z-index: 1; opacity: 0.4;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* --- Animated Orbs --- */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(80px);
+  opacity: 0.5;
+}
+.orb-1 {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(99,102,241,0.3) 0%, transparent 70%);
+  top: -100px; left: -100px;
+  animation: float-orb-1 12s ease-in-out infinite;
+}
+.orb-2 {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(34,211,238,0.2) 0%, transparent 70%);
+  bottom: -50px; right: -50px;
+  animation: float-orb-2 15s ease-in-out infinite;
+}
+.orb-3 {
+  width: 350px; height: 350px;
+  background: radial-gradient(circle, rgba(168,85,247,0.2) 0%, transparent 70%);
+  top: 40%; left: 50%;
+  animation: float-orb-3 18s ease-in-out infinite;
+}
+@keyframes float-orb-1 {
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(30px, 40px); }
+  66% { transform: translate(-20px, 20px); }
+}
+@keyframes float-orb-2 {
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(-40px, -30px); }
+  66% { transform: translate(20px, -20px); }
+}
+@keyframes float-orb-3 {
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(20px, -40px); }
+  66% { transform: translate(-30px, 30px); }
+}
+
+/* --- Node Graph --- */
+.node-graph {
+  animation: node-graph-float 6s ease-in-out infinite;
+}
+@keyframes node-graph-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+.agent-node {
+  transition: filter 0.3s ease;
+}
+@keyframes pulse-indigo {
+  0%, 100% { filter: drop-shadow(0 0 6px rgba(99,102,241,0.4)); }
+  50% { filter: drop-shadow(0 0 14px rgba(99,102,241,0.7)); }
+}
+@keyframes pulse-red {
+  0%, 100% { filter: drop-shadow(0 0 6px rgba(239,68,68,0.4)); }
+  50% { filter: drop-shadow(0 0 14px rgba(239,68,68,0.8)); }
+}
+@keyframes pulse-cyan {
+  0%, 100% { filter: drop-shadow(0 0 6px rgba(34,211,238,0.3)); }
+  50% { filter: drop-shadow(0 0 12px rgba(34,211,238,0.6)); }
+}
+.node-indigo { animation: pulse-indigo 2.5s ease-in-out infinite; }
+.node-red { animation: pulse-red 1.8s ease-in-out infinite; }
+.node-cyan { animation: pulse-cyan 3s ease-in-out infinite; }
+
+@keyframes dash-flow {
+  to { stroke-dashoffset: -20; }
+}
+.animated-line {
+  stroke-dasharray: 8 12;
+  animation: dash-flow 1.5s linear infinite;
+}
+.animated-line-red {
+  stroke-dasharray: 4 8;
+  animation: dash-flow 0.8s linear infinite;
+}
+
+/* --- Scroll Reveal --- */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* --- Bento Grid --- */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 20px;
+}
+@media (max-width: 1024px) {
+  .bento-grid { grid-template-columns: repeat(6, 1fr); }
+  .bento-a { grid-column: span 6 !important; grid-row: span 1 !important; }
+  .bento-b, .bento-c { grid-column: span 6 !important; }
+  .bento-d { grid-column: span 6 !important; grid-row: span 1 !important; }
+  .bento-e { grid-column: span 6 !important; }
+}
+@media (max-width: 768px) {
+  .bento-grid { grid-template-columns: 1fr; }
+  .bento-a, .bento-b, .bento-c, .bento-d, .bento-e {
+    grid-column: span 1 !important;
+    grid-row: span 1 !important;
+  }
+}
+
+/* --- Status Badge Animation --- */
+@keyframes status-cycle {
+  0%, 10% { background: rgba(239,68,68,0.15); border-color: #EF4444; color: #EF4444; }
+  10.1%, 12% { background: rgba(239,68,68,0.15); border-color: #EF4444; color: #EF4444; }
+  30%, 60% { background: rgba(245,158,11,0.15); border-color: #F59E0B; color: #F59E0B; }
+  75%, 100% { background: rgba(16,185,129,0.15); border-color: #10B981; color: #10B981; }
+}
+.status-badge {
+  animation: status-cycle 4s ease-in-out infinite;
+  padding: 6px 16px;
+  border-radius: 8px;
+  border: 1px solid;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-block;
+}
+@keyframes status-text-cycle {
+  0%, 10% { opacity: 1; }
+  10.1% { opacity: 0; }
+  12% { opacity: 0; }
+  100% { opacity: 0; }
+}
+@keyframes status-text-cycle-2 {
+  0%, 10% { opacity: 0; }
+  10.1%, 28% { opacity: 0; }
+  30%, 60% { opacity: 1; }
+  60.1% { opacity: 0; }
+  100% { opacity: 0; }
+}
+@keyframes status-text-cycle-3 {
+  0%, 60% { opacity: 0; }
+  75%, 100% { opacity: 1; }
+}
+.status-text-1 { animation: status-text-cycle 4s ease-in-out infinite; position: absolute; }
+.status-text-2 { animation: status-text-cycle-2 4s ease-in-out infinite; position: absolute; }
+.status-text-3 { animation: status-text-cycle-3 4s ease-in-out infinite; position: absolute; }
+
+/* --- Timeline bar --- */
+@keyframes timeline-fill {
+  0% { width: 0; background: #EF4444; }
+  25% { width: 40%; background: #F59E0B; }
+  75% { width: 80%; background: #F59E0B; }
+  100% { width: 100%; background: #10B981; }
+}
+.timeline-bar-inner {
+  height: 100%;
+  border-radius: 4px;
+  animation: timeline-fill 4s ease-in-out infinite;
+}
+
+/* --- Terminal Typewriter --- */
+.terminal-line {
+  opacity: 0;
+  animation: terminal-fade-in 0.5s ease forwards;
+}
+.terminal-line:nth-child(1) { animation-delay: 0.5s; }
+.terminal-line:nth-child(2) { animation-delay: 1.5s; }
+.terminal-line:nth-child(3) { animation-delay: 2.5s; }
+.terminal-line:nth-child(4) { animation-delay: 3.5s; }
+@keyframes terminal-fade-in {
+  from { opacity: 0; transform: translateX(-5px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* --- Event Log --- */
+.event-line {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.event-line.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* --- Sparkline --- */
+.sparkline-path {
+  stroke-dasharray: 400;
+  stroke-dashoffset: 400;
+  animation: sparkline-draw 3s ease forwards;
+}
+@keyframes sparkline-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+/* --- Pilot Timeline --- */
+.pilot-step::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 40px;
+  bottom: -20px;
+  width: 2px;
+  background: linear-gradient(180deg, #6366F1, rgba(99,102,241,0.1));
+}
+.pilot-step:last-child::before { display: none; }
+
+/* --- Checkmark Animation --- */
+@keyframes check-draw {
+  to { stroke-dashoffset: 0; }
+}
+.check-svg {
+  stroke-dasharray: 20;
+  stroke-dashoffset: 20;
+}
+.check-visible .check-svg {
+  animation: check-draw 0.4s ease forwards;
+}
+.check-item:nth-child(1) .check-svg { animation-delay: 0.1s; }
+.check-item:nth-child(2) .check-svg { animation-delay: 0.3s; }
+.check-item:nth-child(3) .check-svg { animation-delay: 0.5s; }
+.check-item:nth-child(4) .check-svg { animation-delay: 0.7s; }
+.check-item:nth-child(5) .check-svg { animation-delay: 0.9s; }
+
+/* --- Pulsing Dot --- */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(16,185,129,0.4); }
+  50% { opacity: 0.8; box-shadow: 0 0 0 6px rgba(16,185,129,0); }
+}
+.pulse-dot {
+  width: 8px; height: 8px;
+  background: #10B981;
+  border-radius: 50%;
+  display: inline-block;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+/* --- Badge Eyebrow --- */
+.eyebrow-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 18px;
+  border: 1px solid rgba(99,102,241,0.4);
+  border-radius: 100px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #94A3B8;
+  background: rgba(99,102,241,0.06);
+}
+
+/* --- CTA Glow Card --- */
+.cta-card {
+  position: relative;
+  border: 1px solid rgba(99,102,241,0.3);
+  border-radius: 24px;
+  overflow: hidden;
+}
+.cta-card::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 26px;
+  background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(34,211,238,0.1), rgba(168,85,247,0.15));
+  z-index: -1;
+  filter: blur(20px);
+}
+
+/* --- Mobile Nav Overlay --- */
+.mobile-nav-overlay {
+  position: fixed; inset: 0; z-index: 999;
+  background: rgba(8,12,20,0.97);
+  backdrop-filter: blur(20px);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 32px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.mobile-nav-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+.mobile-nav-overlay a {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #F1F5F9;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.mobile-nav-overlay a:hover { color: #6366F1; }
+
+/* --- Section Spacing --- */
+.section-pad { padding: 120px 0; }
+@media (max-width: 768px) { .section-pad { padding: 80px 0; } }
+
+/* --- Browser Chrome --- */
+.browser-chrome {
+  background: #0D1117;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.browser-topbar {
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.browser-dot {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+}
+.browser-url {
+  flex: 1;
+  background: rgba(255,255,255,0.05);
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 0.75rem;
+  color: #475569;
+  font-family: 'JetBrains Mono', monospace;
+  margin-left: 8px;
+}
+
+/* --- Count Up --- */
+.count-number {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+/* --- Section Headings --- */
+h2 { letter-spacing: -0.03em; }
+h3 { letter-spacing: -0.03em; }
+
+/* --- Quote Section --- */
+.quote-mark {
+  font-size: 6rem;
+  line-height: 1;
+  background: linear-gradient(135deg, #6366F1, #22D3EE);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+}
+
+/* --- Footer --- */
+.footer-link {
+  color: #475569;
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: color 0.2s ease;
+}
+.footer-link:hover { color: #94A3B8; }
+
+/* --- Message bubble --- */
+.agent-bubble {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.73rem;
+  position: relative;
+}
+.agent-bubble::before {
+  content: '';
+  position: absolute;
+  width: 12px; height: 12px;
+  background: rgba(255,255,255,0.04);
+  border-left: 1px solid rgba(255,255,255,0.08);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  transform: rotate(45deg);
+}
+.bubble-left::before {
+  left: -7px; top: 14px;
+}
+.bubble-right::before {
+  right: -7px; top: 14px;
+  border-left: none;
+  border-bottom: none;
+  border-right: 1px solid rgba(255,255,255,0.08);
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+/* KPI micro sparkline animation */
+@keyframes kpi-pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+/* --- Language Switcher --- */
+.lang-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 4px;
+  margin-right: 12px;
+}
+.lang-btn {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: #475569;
+  transition: all 0.2s ease;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+}
+.lang-btn:hover { color: #94A3B8; }
+.lang-btn.active {
+  background: rgba(99,102,241,0.2);
+  color: #6366F1;
+}
+
+/* Additional responsive fixes */
+@media (max-width: 768px) {
+  .hero-headline { font-size: 2.5rem !important; }
+  .nav-links-desktop { display: none !important; }
+  .hamburger { display: flex !important; }
+  .hero-two-col { flex-direction: column !important; }
+  .node-graph-wrap { max-width: 100% !important; margin-top: 40px; }
+  .pilot-flex { flex-direction: column !important; }
+  .dashboard-flex { flex-direction: column !important; }
+  .footer-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
+  .quote-text { font-size: 1.3rem !important; }
+}
+@media (min-width: 769px) {
+  .hamburger { display: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ================================================================ -->
+<!-- NAVBAR                                                           -->
+<!-- ================================================================ -->
+<nav class="navbar" id="navbar" role="navigation" aria-label="Ana navigasyon">
+  <div style="max-width:1280px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:64px;">
+    <!-- Logo -->
+    <a href="#" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:#F1F5F9;font-weight:700;font-size:1.15rem;" aria-label="Threshold AI Ana Sayfa">
+      <img src="53e76c94-7069-47b0-929e-c10505187304.jpeg" alt="Threshold AI" style="width:28px;height:28px;object-fit:contain;">
+      Threshold AI
+    </a>
+    <!-- Desktop Links -->
+    <div class="nav-links-desktop" style="display:flex;align-items:center;gap:32px;">
+      <a href="#technology" class="nav-link">Teknoloji</a>
+      <a href="#architecture" class="nav-link">Mimari</a>
+      <a href="#roi" class="nav-link">Yol Haritası</a>
+      <a href="#cta" class="nav-link">Haberdar Ol</a>
+    </div>
+    <!-- CTA + Lang -->
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="lang-switcher">
+        <a href="index.html" class="lang-btn" aria-label="Switch to English">EN</a>
+        <a href="tr.html" class="lang-btn active" aria-label="Türkçe'ye geç">TR</a>
+      </div>
+      <a href="#cta" class="btn-primary" style="padding:10px 22px;font-size:0.85rem;border-radius:10px;" aria-label="Haberdar Ol">Haberdar Ol</a>
+      <!-- Hamburger -->
+      <button class="hamburger" id="hamburgerBtn" style="display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:8px;" aria-label="Menüyü aç" aria-expanded="false">
+        <span style="display:block;width:22px;height:2px;background:#F1F5F9;border-radius:2px;transition:transform 0.3s ease;"></span>
+        <span style="display:block;width:22px;height:2px;background:#F1F5F9;border-radius:2px;transition:opacity 0.3s ease;"></span>
+        <span style="display:block;width:22px;height:2px;background:#F1F5F9;border-radius:2px;transition:transform 0.3s ease;"></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile Nav Overlay -->
+<div class="mobile-nav-overlay" id="mobileNav" role="dialog" aria-label="Mobil navigasyon">
+  <button id="mobileNavClose" style="position:absolute;top:20px;right:24px;background:none;border:none;color:#F1F5F9;font-size:2rem;cursor:pointer;" aria-label="Menüyü kapat">&times;</button>
+  <div class="lang-switcher" style="margin-bottom:16px;">
+    <a href="index.html" class="lang-btn" aria-label="Switch to English">EN</a>
+    <a href="tr.html" class="lang-btn active" aria-label="Türkçe'ye geç">TR</a>
+  </div>
+  <a href="#technology" class="mobile-nav-link">Teknoloji</a>
+  <a href="#architecture" class="mobile-nav-link">Mimari</a>
+  <a href="#roi" class="mobile-nav-link">Yol Haritası</a>
+  <a href="#cta" class="mobile-nav-link">Haberdar Ol</a>
+  <a href="#cta" class="btn-primary" style="margin-top:16px;">Haberdar Ol</a>
+</div>
+
+
+<!-- ================================================================ -->
+<!-- HERO                                                             -->
+<!-- ================================================================ -->
+<section id="hero" class="hero-grid" style="position:relative;min-height:100vh;display:flex;align-items:center;padding-top:100px;padding-bottom:80px;overflow:hidden;">
+  <!-- Noise Overlay -->
+  <div class="noise-overlay"></div>
+  <!-- Orbs -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div style="max-width:1280px;margin:0 auto;padding:0 24px;width:100%;position:relative;z-index:2;">
+    <div class="hero-two-col" style="display:flex;align-items:center;gap:64px;">
+      <!-- LEFT COLUMN -->
+      <div style="flex:1;min-width:0;">
+        <div class="eyebrow-badge reveal" style="margin-bottom:28px;">
+          <span style="color:#6366F1;">✦</span> Çoklu Ajan Fire Sınıflandırma Sistemi
+        </div>
+        <h1 class="hero-headline reveal" style="font-size:clamp(2.5rem, 5vw, 4rem);font-weight:800;line-height:1.08;letter-spacing:-0.03em;margin-bottom:24px;">
+          Otonom, <span class="gradient-text">Fire Sınıflandıran</span><br>Üretim Zekası.
+        </h1>
+        <p class="reveal" style="font-size:1.1rem;color:#94A3B8;line-height:1.7;max-width:540px;margin-bottom:36px;">
+          Reaktif kararların ötesine geçin. Üretim firelerini (hurda/fire) sürekli sınıflandıran, üretim hattınızda kök nedenleri tespit eden ve maliyetler birikmeden optimal düzeltici aksiyonu otonom olarak öneren çoklu ajan ağını keşfedin.
+        </p>
+        <div class="reveal" style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:32px;">
+          <a href="#cta" class="btn-primary" aria-label="Bekleme Listesine Katıl">
+            Bekleme Listesine Katıl
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+          <a href="#architecture" class="btn-ghost" aria-label="Vizyonu Gör">Vizyonu Gör ↓</a>
+        </div>
+        <p class="reveal" style="font-size:0.85rem;color:#475569;line-height:1.6;">
+          <span style="color:#6366F1;">●</span> Şu an Ar-Ge aşamasında · <span style="color:#94A3B8;">Ürün yakında — ilk siz haberdar olun.</span>
+        </p>
+      </div>
+
+      <!-- RIGHT COLUMN — Animated Node Graph -->
+      <div class="node-graph-wrap reveal" style="flex:0 0 480px;max-width:480px;position:relative;">
+        <div class="node-graph">
+          <svg viewBox="0 0 440 380" width="100%" height="100%" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Connection Lines -->
+            <line x1="110" y1="80" x2="220" y2="50" class="animated-line" stroke="rgba(99,102,241,0.4)" stroke-width="1.5"/>
+            <line x1="110" y1="80" x2="220" y2="180" class="animated-line" stroke="rgba(99,102,241,0.4)" stroke-width="1.5"/>
+            <line x1="330" y1="100" x2="220" y2="50" class="animated-line" stroke="rgba(99,102,241,0.4)" stroke-width="1.5"/>
+            <line x1="330" y1="100" x2="220" y2="180" class="animated-line" stroke="rgba(99,102,241,0.4)" stroke-width="1.5"/>
+            <line x1="220" y1="180" x2="220" y2="50" class="animated-line" stroke="rgba(99,102,241,0.3)" stroke-width="1"/>
+            <line x1="110" y1="260" x2="220" y2="180" class="animated-line" stroke="rgba(34,211,238,0.4)" stroke-width="1.5"/>
+            <line x1="330" y1="260" x2="220" y2="180" class="animated-line" stroke="rgba(34,211,238,0.4)" stroke-width="1.5"/>
+            <line x1="220" y1="330" x2="220" y2="180" class="animated-line" stroke="rgba(99,102,241,0.3)" stroke-width="1.5"/>
+            <line x1="220" y1="330" x2="110" y2="260" class="animated-line" stroke="rgba(99,102,241,0.2)" stroke-width="1"/>
+            <line x1="220" y1="330" x2="330" y2="260" class="animated-line" stroke="rgba(99,102,241,0.2)" stroke-width="1"/>
+            <!-- Red lines to failing node -->
+            <line x1="330" y1="100" x2="330" y2="260" class="animated-line-red" stroke="rgba(239,68,68,0.4)" stroke-width="1.5"/>
+
+            <!-- Nodes -->
+            <!-- LOOM-1 -->
+            <g class="agent-node node-indigo">
+              <circle cx="110" cy="80" r="28" fill="rgba(99,102,241,0.1)" stroke="#6366F1" stroke-width="1.5"/>
+              <text x="110" y="76" text-anchor="middle" fill="#94A3B8" font-size="8" font-family="JetBrains Mono,monospace" font-weight="500">LOOM</text>
+              <text x="110" y="88" text-anchor="middle" fill="#F1F5F9" font-size="10" font-family="JetBrains Mono,monospace" font-weight="700">1</text>
+            </g>
+            <!-- SCHEDULER -->
+            <g class="agent-node node-indigo">
+              <circle cx="220" cy="50" r="30" fill="rgba(99,102,241,0.1)" stroke="#6366F1" stroke-width="1.5"/>
+              <text x="220" y="46" text-anchor="middle" fill="#94A3B8" font-size="7" font-family="JetBrains Mono,monospace" font-weight="500">SCHED</text>
+              <text x="220" y="58" text-anchor="middle" fill="#F1F5F9" font-size="8" font-family="JetBrains Mono,monospace" font-weight="700">ULER</text>
+            </g>
+            <!-- LOOM-4 ✗ (failing) -->
+            <g class="agent-node node-red">
+              <circle cx="330" cy="100" r="28" fill="rgba(239,68,68,0.1)" stroke="#EF4444" stroke-width="1.5"/>
+              <text x="330" y="93" text-anchor="middle" fill="#EF4444" font-size="8" font-family="JetBrains Mono,monospace" font-weight="500">LOOM</text>
+              <text x="330" y="105" text-anchor="middle" fill="#EF4444" font-size="10" font-family="JetBrains Mono,monospace" font-weight="700">4 ✗</text>
+            </g>
+            <!-- PLANNER -->
+            <g class="agent-node node-indigo">
+              <circle cx="220" cy="180" r="32" fill="rgba(99,102,241,0.12)" stroke="#6366F1" stroke-width="1.5"/>
+              <text x="220" y="176" text-anchor="middle" fill="#94A3B8" font-size="7" font-family="JetBrains Mono,monospace" font-weight="500">WASTE</text>
+              <text x="220" y="188" text-anchor="middle" fill="#F1F5F9" font-size="9" font-family="JetBrains Mono,monospace" font-weight="700">CLASS</text>
+            </g>
+            <!-- DYE-BATH -->
+            <g class="agent-node node-cyan">
+              <circle cx="110" cy="260" r="28" fill="rgba(34,211,238,0.08)" stroke="#22D3EE" stroke-width="1.5"/>
+              <text x="110" y="256" text-anchor="middle" fill="#94A3B8" font-size="7" font-family="JetBrains Mono,monospace" font-weight="500">BOYA</text>
+              <text x="110" y="268" text-anchor="middle" fill="#22D3EE" font-size="9" font-family="JetBrains Mono,monospace" font-weight="700">BANYO</text>
+            </g>
+            <!-- CUTTER-A -->
+            <g class="agent-node node-cyan">
+              <circle cx="330" cy="260" r="28" fill="rgba(34,211,238,0.08)" stroke="#22D3EE" stroke-width="1.5"/>
+              <text x="330" y="256" text-anchor="middle" fill="#94A3B8" font-size="7" font-family="JetBrains Mono,monospace" font-weight="500">KES</text>
+              <text x="330" y="268" text-anchor="middle" fill="#22D3EE" font-size="9" font-family="JetBrains Mono,monospace" font-weight="700">İCİ-A</text>
+            </g>
+            <!-- MONITOR -->
+            <g class="agent-node node-indigo">
+              <circle cx="220" cy="330" r="26" fill="rgba(99,102,241,0.08)" stroke="#6366F1" stroke-width="1.5"/>
+              <text x="220" y="326" text-anchor="middle" fill="#94A3B8" font-size="7" font-family="JetBrains Mono,monospace" font-weight="500">İZLE</text>
+              <text x="220" y="338" text-anchor="middle" fill="#F1F5F9" font-size="8" font-family="JetBrains Mono,monospace" font-weight="700">YİCİ</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ================================================================ -->
+<!-- SECTION 3: BENTO GRID — TEMEL YETENEKLERİMİZ                    -->
+<!-- ================================================================ -->
+<section id="technology" class="section-pad" style="background:#080C14;">
+  <div style="max-width:1280px;margin:0 auto;padding:0 24px;">
+    <div class="reveal" style="text-align:center;margin-bottom:64px;">
+      <p style="color:#6366F1;font-weight:600;font-size:0.85rem;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;">Tasarladıklarımız</p>
+      <h2 style="font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:800;line-height:1.15;">Sıfır Fire için<br>Üretim <span class="gradient-text">Zekası</span></h2>
+    </div>
+
+    <div class="bento-grid">
+      <!-- CARD A: Saniyenin Altında Kendi Kendini İyileştirme -->
+      <div class="glass-card bento-a reveal" style="grid-column:span 6;padding:36px;display:flex;flex-direction:column;gap:24px;">
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+            <div style="width:36px;height:36px;border-radius:10px;background:rgba(99,102,241,0.12);display:flex;align-items:center;justify-content:center;">
+              <i data-lucide="zap" style="width:18px;height:18px;color:#6366F1;"></i>
+            </div>
+            <h3 style="font-size:1.15rem;font-weight:700;">Otonom Fire Sınıflandırma</h3>
+          </div>
+          <p style="color:#94A3B8;font-size:0.9rem;line-height:1.65;margin-bottom:28px;max-width:420px;">
+            Kritik hat kesintisi veya kalite hatası oluştuğunda, MAS anında fire türünü sınıflandırır, kök nedeni tespit eder ve üretime yeniden yön verir — insan kararına gerek kalmaz.
+          </p>
+        </div>
+        <!-- Status Animation -->
+        <div style="background:rgba(0,0,0,0.3);border-radius:12px;padding:24px;">
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
+            <span style="color:#475569;font-family:'JetBrains Mono',monospace;font-size:0.75rem;">LOOM-4 DURUM</span>
+            <div class="status-badge" style="position:relative;min-width:130px;text-align:center;height:28px;">
+              <span class="status-text-1">● FİRE TESPİT</span>
+              <span class="status-text-2">↻ SINIFLANDIRILIYOR...</span>
+              <span class="status-text-3">✓ AKSİYON ALINDI</span>
+            </div>
+          </div>
+          <div style="background:rgba(255,255,255,0.05);border-radius:6px;height:6px;overflow:hidden;">
+            <div class="timeline-bar-inner"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:8px;">
+            <span style="font-size:0.65rem;color:#475569;font-family:'JetBrains Mono',monospace;">0.0s</span>
+            <span style="font-size:0.65rem;color:#475569;font-family:'JetBrains Mono',monospace;">1.0s</span>
+            <span style="font-size:0.65rem;color:#475569;font-family:'JetBrains Mono',monospace;">2.0s</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD B: Çoklu Ajan Protokolü -->
+      <div class="glass-card bento-b reveal" style="grid-column:span 6;padding:32px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(34,211,238,0.12);display:flex;align-items:center;justify-content:center;">
+            <i data-lucide="messages-square" style="width:18px;height:18px;color:#22D3EE;"></i>
+          </div>
+          <h3 style="font-size:1.05rem;font-weight:700;">Çoklu Ajan Protokolü</h3>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div>
+            <span style="font-size:0.7rem;color:#EF4444;font-family:'JetBrains Mono',monospace;font-weight:600;">FireDedektörü_03</span>
+            <div class="agent-bubble bubble-left" style="margin-top:6px;margin-left:8px;background:rgba(239,68,68,0.06);border-color:rgba(239,68,68,0.15);">
+              <span style="color:#EF4444;">tür:</span> <span style="color:#94A3B8;">"çözgü_kopması"</span><br>
+              <span style="color:#F59E0B;">şiddet:</span> <span style="color:#94A3B8;">"yüksek"</span>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <span style="font-size:0.7rem;color:#6366F1;font-family:'JetBrains Mono',monospace;font-weight:600;">KararPlanlayıcı</span>
+            <div class="agent-bubble bubble-right" style="margin-top:6px;margin-right:8px;background:rgba(99,102,241,0.06);border-color:rgba(99,102,241,0.15);">
+              <span style="color:#6366F1;">aksiyon:</span> <span style="color:#94A3B8;">"sınıflandır"</span><br>
+              <span style="color:#22D3EE;">düzeltici:</span> <span style="color:#94A3B8;">"yönlendir+işaretle"</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD D: Kesintisiz Dağıtım -->
+      <div class="glass-card bento-d reveal" style="grid-column:span 6;padding:32px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(168,85,247,0.12);display:flex;align-items:center;justify-content:center;">
+            <i data-lucide="container" style="width:18px;height:18px;color:#A855F7;"></i>
+          </div>
+          <h3 style="font-size:1.05rem;font-weight:700;">Kesintisiz Dağıtım</h3>
+        </div>
+        <div style="background:rgba(0,0,0,0.4);border-radius:10px;padding:20px;font-family:'JetBrains Mono',monospace;font-size:0.72rem;line-height:2.2;">
+          <div class="terminal-line">
+            <span style="color:#475569;">$</span> <span style="color:#94A3B8;">docker pull thresholdai/core:latest</span> <span style="color:#10B981;">✓</span>
+          </div>
+          <div class="terminal-line">
+            <span style="color:#475569;">$</span> <span style="color:#94A3B8;">docker-compose up --scale agent=12</span> <span style="color:#10B981;">✓</span>
+          </div>
+          <div class="terminal-line">
+            <span style="color:#475569;">$</span> <span style="color:#94A3B8;">threshold deploy --env production</span> <span style="color:#10B981;">✓</span>
+          </div>
+          <div class="terminal-line">
+            <span style="color:#22D3EE;">&gt;</span> <span style="color:#10B981;">12 ajanın tamamı sağlıklı</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD E: Tam Gözlemlenebilirlik -->
+      <div class="glass-card bento-e reveal" style="grid-column:span 6;padding:32px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(99,102,241,0.12);display:flex;align-items:center;justify-content:center;">
+            <i data-lucide="activity" style="width:18px;height:18px;color:#6366F1;"></i>
+          </div>
+          <h3 style="font-size:1.05rem;font-weight:700;">Tam Gözlemlenebilirlik Altyapısı</h3>
+        </div>
+        <div style="position:relative;height:120px;overflow:hidden;">
+          <svg width="100%" height="120" viewBox="0 0 700 120" preserveAspectRatio="none" fill="none">
+            <!-- Grid lines -->
+            <line x1="0" y1="30" x2="700" y2="30" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+            <line x1="0" y1="60" x2="700" y2="60" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+            <line x1="0" y1="90" x2="700" y2="90" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+            <!-- Area fill -->
+            <path d="M0,50 L80,45 L160,40 L240,35 L300,90 L340,85 L380,30 L440,25 L520,22 L600,20 L700,18 L700,120 L0,120 Z" fill="url(#sparkGrad)" opacity="0.3"/>
+            <!-- Main line -->
+            <polyline class="sparkline-path" points="0,50 80,45 160,40 240,35 300,90 340,85 380,30 440,25 520,22 600,20 700,18" stroke="#6366F1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- Failure point -->
+            <circle cx="300" cy="90" r="5" fill="#EF4444" stroke="#080C14" stroke-width="2"/>
+            <!-- Recovery point -->
+            <circle cx="380" cy="30" r="5" fill="#10B981" stroke="#080C14" stroke-width="2"/>
+            <defs>
+              <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#6366F1" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#6366F1" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <!-- Labels -->
+          <div style="position:absolute;top:78px;left:calc(300 / 700 * 100% - 40px);font-size:0.62rem;color:#EF4444;font-family:'JetBrains Mono',monospace;white-space:nowrap;">
+            ↓ Loom 4 Arızası
+          </div>
+          <div style="position:absolute;top:10px;left:calc(380 / 700 * 100% - 30px);font-size:0.62rem;color:#10B981;font-family:'JetBrains Mono',monospace;white-space:nowrap;">
+            ↑ Otomatik Çözüldü
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ================================================================ -->
+<!-- SECTION 4: CANLI PANEL MOCKUP                                    -->
+<!-- ================================================================ -->
+<section id="architecture" class="section-pad" style="background:#0D1117;">
+  <div style="max-width:1280px;margin:0 auto;padding:0 24px;">
+    <div class="reveal" style="text-align:center;margin-bottom:64px;">
+      <p style="color:#22D3EE;font-weight:600;font-size:0.85rem;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;">Mimari Önizleme</p>
+      <h2 style="font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:800;line-height:1.15;">Kovan Fireyi <span class="gradient-text">Gerçek Zamanlı</span><br>Nasıl Sınıflandıracak</h2>
+    </div>
+
+    <div class="reveal browser-chrome" style="max-width:1100px;margin:0 auto;">
+      <!-- Browser Top Bar -->
+      <div class="browser-topbar">
+        <div class="browser-dot" style="background:#EF4444;"></div>
+        <div class="browser-dot" style="background:#F59E0B;"></div>
+        <div class="browser-dot" style="background:#10B981;"></div>
+        <div class="browser-url">threshold.local/dashboard/hive</div>
+      </div>
+      <!-- Dashboard Content -->
+      <div class="dashboard-flex" style="display:flex;min-height:400px;">
+        <!-- Left: Event Log -->
+        <div style="flex:0 0 40%;border-right:1px solid rgba(255,255,255,0.06);padding:24px;overflow:hidden;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;">
+            <span class="pulse-dot"></span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#94A3B8;font-weight:600;letter-spacing:0.05em;">SİSTEM OLAYLARI</span>
+          </div>
+          <div id="eventLog" style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;line-height:2.2;color:#94A3B8;">
+          </div>
+        </div>
+        <!-- Right: KPI Cards -->
+        <div style="flex:1;padding:24px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <!-- Active Agents -->
+            <div class="glass-card" style="padding:20px;">
+              <span style="font-size:0.72rem;color:#475569;display:block;margin-bottom:8px;">Aktif Ajanlar</span>
+              <div style="display:flex;align-items:baseline;gap:4px;">
+                <span style="font-size:1.8rem;font-weight:800;color:#10B981;">12</span>
+                <span style="font-size:0.9rem;color:#475569;">/ 12</span>
+              </div>
+              <svg width="100%" height="30" viewBox="0 0 120 30" preserveAspectRatio="none" style="margin-top:8px;">
+                <polyline points="0,20 15,18 30,15 45,16 60,14 75,10 90,8 105,6 120,5" stroke="#10B981" stroke-width="1.5" fill="none" opacity="0.6"/>
+              </svg>
+            </div>
+            <!-- Current Delay -->
+            <div class="glass-card" style="padding:20px;">
+              <span style="font-size:0.72rem;color:#475569;display:block;margin-bottom:8px;">Mevcut Gecikme</span>
+              <div style="display:flex;align-items:baseline;gap:4px;">
+                <span style="font-size:1.8rem;font-weight:800;color:#10B981;">0</span>
+                <span style="font-size:0.9rem;color:#475569;">dk</span>
+              </div>
+              <svg width="100%" height="30" viewBox="0 0 120 30" preserveAspectRatio="none" style="margin-top:8px;">
+                <polyline points="0,5 15,6 30,5 45,20 60,22 75,10 90,6 105,5 120,5" stroke="#10B981" stroke-width="1.5" fill="none" opacity="0.6"/>
+              </svg>
+            </div>
+            <!-- Material Waste -->
+            <div class="glass-card" style="padding:20px;">
+              <span style="font-size:0.72rem;color:#475569;display:block;margin-bottom:8px;">Bugünkü Malzeme İsrafı</span>
+              <div style="display:flex;align-items:baseline;gap:6px;">
+                <span style="font-size:1.8rem;font-weight:800;color:#10B981;">2.3%</span>
+                <span style="font-size:0.72rem;color:#10B981;">↓</span>
+              </div>
+              <svg width="100%" height="30" viewBox="0 0 120 30" preserveAspectRatio="none" style="margin-top:8px;">
+                <polyline points="0,8 15,10 30,12 45,14 60,18 75,16 90,20 105,22 120,24" stroke="#10B981" stroke-width="1.5" fill="none" opacity="0.6"/>
+              </svg>
+            </div>
+            <!-- Energy Index -->
+            <div class="glass-card" style="padding:20px;">
+              <span style="font-size:0.72rem;color:#475569;display:block;margin-bottom:8px;">Enerji Endeksi</span>
+              <div style="display:flex;align-items:baseline;gap:6px;">
+                <span style="font-size:1.8rem;font-weight:800;color:#22D3EE;">Optimal</span>
+                <span style="font-size:0.72rem;color:#10B981;">↑</span>
+              </div>
+              <svg width="100%" height="30" viewBox="0 0 120 30" preserveAspectRatio="none" style="margin-top:8px;">
+                <polyline points="0,25 15,22 30,20 45,18 60,15 75,12 90,10 105,8 120,5" stroke="#22D3EE" stroke-width="1.5" fill="none" opacity="0.6"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tags below mockup -->
+    <div class="reveal" style="display:flex;justify-content:center;gap:24px;margin-top:40px;flex-wrap:wrap;">
+      <span style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:100px;font-size:0.82rem;color:#94A3B8;">🐳 Docker Destekli</span>
+      <span style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:100px;font-size:0.82rem;color:#94A3B8;">🔒 Şirket İçi / Özel Bulut</span>
+      <span style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:100px;font-size:0.82rem;color:#94A3B8;">⚡ Hızlı Kurtarma</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ================================================================ -->
+<!-- SECTION 5: YOL HARİTASI                                         -->
+<!-- ================================================================ -->
+<section id="roi" class="section-pad" style="background:#080C14;">
+  <div style="max-width:1280px;margin:0 auto;padding:0 24px;">
+    <div class="reveal" style="margin-bottom:64px;">
+      <p style="color:#A855F7;font-weight:600;font-size:0.85rem;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;">Yol Haritamız</p>
+    </div>
+    <div class="pilot-flex" style="display:flex;gap:64px;align-items:flex-start;">
+      <!-- LEFT: Text + Timeline -->
+      <div style="flex:1;min-width:0;">
+        <h2 class="reveal" style="font-size:clamp(1.8rem,3.5vw,2.6rem);font-weight:800;line-height:1.15;margin-bottom:48px;">
+          Konseptten<br>Ürüne <span class="gradient-text-purple">2026</span>'da.
+        </h2>
+        <div class="reveal" style="display:flex;flex-direction:column;gap:40px;position:relative;">
+          <!-- Step 1 -->
+          <div class="pilot-step" style="display:flex;gap:20px;position:relative;">
+            <div style="flex:0 0 32px;height:32px;border-radius:50%;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);display:flex;align-items:center;justify-content:center;">
+              <span style="font-size:0.75rem;font-weight:700;color:#6366F1;">1</span>
+            </div>
+            <div>
+              <span style="font-size:0.75rem;color:#6366F1;font-weight:600;font-family:'JetBrains Mono',monospace;">Faz 1 — Araştırma</span>
+              <p style="color:#94A3B8;font-size:0.92rem;margin-top:4px;line-height:1.6;">Üretim için çoklu ajan mimarileri üzerine derinlemesine araştırma</p>
+            </div>
+          </div>
+          <!-- Step 2 -->
+          <div class="pilot-step" style="display:flex;gap:20px;position:relative;">
+            <div style="flex:0 0 32px;height:32px;border-radius:50%;background:rgba(34,211,238,0.12);border:1px solid rgba(34,211,238,0.3);display:flex;align-items:center;justify-content:center;">
+              <span style="font-size:0.75rem;font-weight:700;color:#22D3EE;">2</span>
+            </div>
+            <div>
+              <span style="font-size:0.75rem;color:#22D3EE;font-weight:600;font-family:'JetBrains Mono',monospace;">Faz 2 — Prototip</span>
+              <p style="color:#94A3B8;font-size:0.92rem;margin-top:4px;line-height:1.6;">Çekirdek ajan protokolü ve kendi kendini iyileştirme motorunun geliştirilmesi ve doğrulanması</p>
+            </div>
+          </div>
+          <!-- Step 3 -->
+          <div class="pilot-step" style="display:flex;gap:20px;position:relative;">
+            <div style="flex:0 0 32px;height:32px;border-radius:50%;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);display:flex;align-items:center;justify-content:center;">
+              <span style="font-size:0.75rem;font-weight:700;color:#10B981;">3</span>
+            </div>
+            <div>
+              <span style="font-size:0.75rem;color:#10B981;font-weight:600;font-family:'JetBrains Mono',monospace;">Faz 3 — Erken Erişim</span>
+              <p style="color:#94A3B8;font-size:0.92rem;margin-top:4px;line-height:1.6;">Üretim ortakları ile ilk pilot dağıtımlar</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Deliverables Card -->
+      <div class="reveal" style="flex:0 0 420px;max-width:100%;">
+        <div class="glass-card" id="deliverablesCard" style="padding:36px;box-shadow:0 0 60px rgba(99,102,241,0.1);border-color:rgba(99,102,241,0.15);">
+          <h3 style="font-size:1.15rem;font-weight:700;margin-bottom:28px;">Geliştirdiklerimiz</h3>
+          <div style="display:flex;flex-direction:column;gap:18px;" id="checklistContainer">
+            <div class="check-item" style="display:flex;align-items:center;gap:12px;">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="#10B981" stroke-width="1.5" fill="rgba(16,185,129,0.1)"/><polyline class="check-svg" points="6,10 9,13 14,7" stroke="#10B981" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span style="color:#94A3B8;font-size:0.9rem;">Otonom fire/hurda sınıflandırma motoru</span>
+            </div>
+            <div class="check-item" style="display:flex;align-items:center;gap:12px;">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="#10B981" stroke-width="1.5" fill="rgba(16,185,129,0.1)"/><polyline class="check-svg" points="6,10 9,13 14,7" stroke="#10B981" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span style="color:#94A3B8;font-size:0.9rem;">Çoklu ajan kök neden analizi protokolü</span>
+            </div>
+            <div class="check-item" style="display:flex;align-items:center;gap:12px;">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="#10B981" stroke-width="1.5" fill="rgba(16,185,129,0.1)"/><polyline class="check-svg" points="6,10 9,13 14,7" stroke="#10B981" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span style="color:#94A3B8;font-size:0.9rem;">Gerçek zamanlı fire KPI ve gözlemlenebilirlik paneli</span>
+            </div>
+            <div class="check-item" style="display:flex;align-items:center;gap:12px;">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="#10B981" stroke-width="1.5" fill="rgba(16,185,129,0.1)"/><polyline class="check-svg" points="6,10 9,13 14,7" stroke="#10B981" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span style="color:#94A3B8;font-size:0.9rem;">Docker tabanlı, şirket içi dağıtım altyapısı</span>
+            </div>
+          </div>
+          <div style="margin-top:28px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.07);">
+            <p style="font-size:0.95rem;font-weight:700;color:#F1F5F9;">Şu an <span style="color:#6366F1;">aktif Ar-Ge</span> aşamasında — ürün yakında</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ================================================================ -->
+<!-- SECTION 7: SON CTA                                               -->
+<!-- ================================================================ -->
+<section id="cta" class="section-pad" style="background:#080C14;">
+  <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+    <div class="reveal cta-card" style="padding:64px 48px;text-align:center;background:rgba(255,255,255,0.02);">
+      <h2 style="font-size:clamp(1.8rem,3.5vw,2.5rem);font-weight:800;line-height:1.15;margin-bottom:16px;">
+        <span class="gradient-text">Fireyi</span> Ortadan Kaldırmaya Hazır mısınız?
+      </h2>
+      <p style="color:#94A3B8;font-size:1rem;line-height:1.7;margin-bottom:36px;max-width:480px;margin-left:auto;margin-right:auto;">
+        Modern üretim için otonom fire zekası inşa ediyoruz. Erken erişim için bekleme listemize katılın.
+      </p>
+      <a href="#" class="btn-primary" style="font-size:1.05rem;padding:16px 36px;" aria-label="Bekleme Listesine Katıl">
+        Bekleme Listesine Katıl
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+      <p style="color:#475569;font-size:0.82rem;margin-top:20px;">Taahhüt yok. Erken erişim açıldığında sizi bilgilendireceğiz.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ================================================================ -->
+<!-- SECTION 8: FOOTER                                                -->
+<!-- ================================================================ -->
+<footer style="background:#0D1117;border-top:1px solid rgba(255,255,255,0.06);padding:64px 0 24px;">
+  <div style="max-width:1280px;margin:0 auto;padding:0 24px;">
+    <div class="footer-grid" style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:48px;">
+      <!-- Logo & Tagline -->
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+          <img src="53e76c94-7069-47b0-929e-c10505187304.jpeg" alt="Threshold AI" style="width:24px;height:24px;object-fit:contain;">
+          <span style="font-weight:700;font-size:1rem;">Threshold AI</span>
+        </div>
+        <p style="color:#475569;font-size:0.85rem;line-height:1.7;max-width:280px;">Üretim firesi, otonom zeka ile buluştuğunda.</p>
+      </div>
+      <!-- Ürün -->
+      <div>
+        <h4 style="font-size:0.8rem;font-weight:600;color:#94A3B8;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:16px;">Ürün</h4>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <a href="#technology" class="footer-link">Teknoloji</a>
+          <a href="#architecture" class="footer-link">Mimari</a>
+          <a href="#roi" class="footer-link">Yol Haritası</a>
+          <a href="#" class="footer-link">Dokümantasyon</a>
+        </div>
+      </div>
+      <!-- Şirket -->
+      <div>
+        <h4 style="font-size:0.8rem;font-weight:600;color:#94A3B8;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:16px;">Şirket</h4>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <a href="#" class="footer-link">Hakkımızda</a>
+          <a href="#" class="footer-link">Kariyer</a>
+          <a href="#" class="footer-link">Blog</a>
+          <a href="#" class="footer-link">Basın</a>
+        </div>
+      </div>
+      <!-- İletişim -->
+      <div>
+        <h4 style="font-size:0.8rem;font-weight:600;color:#94A3B8;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:16px;">İletişim</h4>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <a href="#" class="footer-link">hello@threshold.ai</a>
+          <a href="#" class="footer-link">LinkedIn</a>
+          <a href="#" class="footer-link">Twitter / X</a>
+        </div>
+      </div>
+    </div>
+    <!-- Bottom bar -->
+    <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+      <span style="font-size:0.78rem;color:#475569;">&copy; 2025 Threshold AI. Tüm hakları saklıdır.</span>
+      <span style="font-size:0.78rem;color:#475569;">Durmayı reddeden fabrikalar için ♥ ile yapıldı</span>
+    </div>
+  </div>
+</footer>
+
+
+<!-- ================================================================ -->
+<!-- JAVASCRIPT                                                       -->
+<!-- ================================================================ -->
+<script>
+(function() {
+  'use strict';
+
+  // --- Initialize Lucide Icons ---
+  try { lucide.createIcons(); } catch(e) {}
+
+  // --- Navbar Scroll ---
+  var navbar = document.getElementById('navbar');
+  if (navbar) {
+    window.addEventListener('scroll', function() {
+      if (window.scrollY > 80) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    }, { passive: true });
+  }
+
+  // --- Mobile Nav ---
+  var hamburger = document.getElementById('hamburgerBtn');
+  var mobileNav = document.getElementById('mobileNav');
+  var mobileNavClose = document.getElementById('mobileNavClose');
+  if (hamburger && mobileNav) {
+    hamburger.addEventListener('click', function() {
+      mobileNav.classList.add('open');
+      hamburger.setAttribute('aria-expanded', 'true');
+    });
+    if (mobileNavClose) {
+      mobileNavClose.addEventListener('click', function() {
+        mobileNav.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', 'false');
+      });
+    }
+    // Close on link click
+    var mobileLinks = mobileNav.querySelectorAll('a');
+    mobileLinks.forEach(function(link) {
+      link.addEventListener('click', function() {
+        mobileNav.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
+
+  // --- Scroll Reveal via IntersectionObserver ---
+  var revealEls = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    var revealObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    revealEls.forEach(function(el) {
+      revealObserver.observe(el);
+    });
+  } else {
+    // Fallback: show all
+    revealEls.forEach(function(el) { el.classList.add('visible'); });
+  }
+
+  // --- Count-up Animation ---
+  var countVals = document.querySelectorAll('.count-val');
+  var countTriggered = false;
+  function animateCount(el) {
+    var target = parseInt(el.getAttribute('data-target'), 10);
+    var current = 0;
+    var duration = 1200;
+    var start = null;
+    function step(ts) {
+      if (!start) start = ts;
+      var progress = Math.min((ts - start) / duration, 1);
+      current = Math.round(progress * target);
+      el.textContent = current;
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      }
+    }
+    requestAnimationFrame(step);
+  }
+  if ('IntersectionObserver' in window) {
+    var roiCard = document.getElementById('roiCard');
+    if (roiCard) {
+      var countObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting && !countTriggered) {
+            countTriggered = true;
+            countVals.forEach(function(el) { animateCount(el); });
+            countObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.5 });
+      countObserver.observe(roiCard);
+    }
+  } else {
+    countVals.forEach(function(el) { el.textContent = el.getAttribute('data-target'); });
+  }
+
+  // --- Checkmark Animation ---
+  if ('IntersectionObserver' in window) {
+    var delCard = document.getElementById('deliverablesCard');
+    if (delCard) {
+      var checkObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('check-visible');
+            checkObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.3 });
+      checkObserver.observe(delCard);
+    }
+  }
+
+  // --- Event Log Cycling ---
+  var eventLog = document.getElementById('eventLog');
+  if (eventLog) {
+    var events = [
+      { time: '10:42:01', type: 'TESPİT',  color: '#EF4444', text: 'Loom 4: Çözgü kopması — B3 fire türü işaretlendi' },
+      { time: '10:42:01', type: 'AJAN',    color: '#22D3EE', text: 'FireDedektörü_04 → kök neden analizi başladı' },
+      { time: '10:42:01', type: 'SINIF',   color: '#6366F1', text: 'Sınıflandırma: gerginlik hatası / kaynak tespit edildi' },
+      { time: '10:42:02', type: 'PLAN',    color: '#F59E0B', text: 'Düzeltici aksiyon: beam gerginliği %4 azalt' },
+      { time: '10:42:02', type: 'BİLDİR',  color: '#6366F1', text: 'Boya banyosu yük azalmasına göre yeniden hesaplandı' },
+      { time: '10:42:03', type: 'BAŞARI',  color: '#10B981', text: 'Fire oranı nominal. SLA korundu.' },
+      { time: '10:42:04', type: 'BEKLE',   color: '#475569', text: 'Tüm ajanlar fire desenleri için izliyor...' },
+      { time: '10:42:09', type: 'SAĞLIK',  color: '#475569', text: 'Sistem kalp atışı OK — 12/12 ajan' },
+    ];
+
+    var currentLine = 0;
+    var logLines = [];
+
+    function addLogLine() {
+      var evt = events[currentLine];
+      var line = document.createElement('div');
+      line.className = 'event-line';
+      line.innerHTML = '<span style="color:#475569;">[' + evt.time + ']</span> <span style="color:' + evt.color + ';">● ' + evt.type.padEnd(7) + '</span> ' + evt.text;
+      eventLog.appendChild(line);
+      logLines.push(line);
+
+      // Force reflow then show
+      requestAnimationFrame(function() {
+        line.classList.add('show');
+      });
+
+      currentLine++;
+      if (currentLine >= events.length) {
+        // After last line, wait and restart
+        setTimeout(function() {
+          currentLine = 0;
+          logLines.forEach(function(l) { l.remove(); });
+          logLines = [];
+          setTimeout(addLogLine, 500);
+        }, 3000);
+      } else {
+        setTimeout(addLogLine, 700);
+      }
+    }
+
+    // Start after a delay
+    setTimeout(addLogLine, 1000);
+  }
+
+  // --- Smooth scroll for anchor links ---
+  document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+    a.addEventListener('click', function(e) {
+      var target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+})();
+</script>
+
+</body>
+</html>
