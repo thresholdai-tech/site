@@ -276,12 +276,16 @@ body {
 .status-badge {
   animation: status-cycle 4s ease-in-out infinite;
   padding: 6px 16px;
+  min-width: 148px;
   border-radius: 8px;
   border: 1px solid;
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.8rem;
   font-weight: 600;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 @keyframes status-text-cycle {
   0%, 10% { opacity: 1; }
@@ -300,9 +304,18 @@ body {
   0%, 60% { opacity: 0; }
   75%, 100% { opacity: 1; }
 }
-.status-text-1 { animation: status-text-cycle 4s ease-in-out infinite; position: absolute; }
-.status-text-2 { animation: status-text-cycle-2 4s ease-in-out infinite; position: absolute; }
-.status-text-3 { animation: status-text-cycle-3 4s ease-in-out infinite; position: absolute; }
+.status-text-1, .status-text-2, .status-text-3 {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  line-height: 1;
+}
+.status-text-1 { animation: status-text-cycle 4s ease-in-out infinite; }
+.status-text-2 { animation: status-text-cycle-2 4s ease-in-out infinite; }
+.status-text-3 { animation: status-text-cycle-3 4s ease-in-out infinite; }
 
 /* --- Timeline bar --- */
 @keyframes timeline-fill {
@@ -347,6 +360,29 @@ body {
   stroke-dasharray: 400;
   stroke-dashoffset: 400;
   animation: sparkline-draw 3s ease forwards;
+}
+.spark-label {
+  position: absolute;
+  transform: translateX(-50%);
+  font-size: 0.62rem;
+  font-family: 'JetBrains Mono', monospace;
+  white-space: nowrap;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(8,12,20,0.78);
+  border: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.spark-label-failure {
+  color: #EF4444;
+  left: calc(300 / 700 * 100%);
+  top: 98px;
+}
+.spark-label-success {
+  color: #10B981;
+  left: calc(380 / 700 * 100%);
+  top: 8px;
 }
 @keyframes sparkline-draw {
   to { stroke-dashoffset: 0; }
@@ -607,6 +643,9 @@ h3 { letter-spacing: -0.03em; }
   .cta-card { padding: 40px 24px !important; }
   .footer-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
   .quote-text { font-size: 1.3rem !important; }
+  .spark-label { font-size: 0.56rem; padding: 2px 6px; }
+  .spark-label-failure { top: 100px; }
+  .spark-label-success { top: 10px; }
 }
 @media (max-width: 420px) {
   .hero-headline { font-size: 1.95rem !important; line-height: 1.12 !important; }
@@ -799,9 +838,9 @@ h3 { letter-spacing: -0.03em; }
         </div>
         <!-- Status Animation -->
         <div style="background:rgba(0,0,0,0.3);border-radius:12px;padding:24px;">
-          <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
+          <div style="display:flex;align-items:center;gap:16px;row-gap:8px;flex-wrap:wrap;margin-bottom:20px;">
             <span style="color:#475569;font-family:'JetBrains Mono',monospace;font-size:0.75rem;">LOOM-4 DURUM</span>
-            <div class="status-badge" style="position:relative;min-width:130px;text-align:center;height:28px;">
+            <div class="status-badge" style="position:relative;text-align:center;height:28px;">
               <span class="status-text-1">● FİRE TESPİT</span>
               <span class="status-text-2">↻ SINIFLANDIRILIYOR...</span>
               <span class="status-text-3">✓ AKSİYON ALINDI</span>
@@ -877,7 +916,7 @@ h3 { letter-spacing: -0.03em; }
           <h3 style="font-size:1.05rem;font-weight:700;">Tam Gözlemlenebilirlik Altyapısı</h3>
         </div>
         <div style="position:relative;height:120px;overflow:hidden;">
-          <svg width="100%" height="120" viewBox="0 0 700 120" preserveAspectRatio="none" fill="none">
+          <svg width="100%" height="120" viewBox="0 0 700 120" preserveAspectRatio="none" fill="none" style="display:block;">
             <!-- Grid lines -->
             <line x1="0" y1="30" x2="700" y2="30" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
             <line x1="0" y1="60" x2="700" y2="60" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
@@ -898,10 +937,10 @@ h3 { letter-spacing: -0.03em; }
             </defs>
           </svg>
           <!-- Labels -->
-          <div style="position:absolute;top:78px;left:calc(300 / 700 * 100% - 40px);font-size:0.62rem;color:#EF4444;font-family:'JetBrains Mono',monospace;white-space:nowrap;">
+          <div class="spark-label spark-label-failure">
             ↓ Loom 4 Arızası
           </div>
-          <div style="position:absolute;top:10px;left:calc(380 / 700 * 100% - 30px);font-size:0.62rem;color:#10B981;font-family:'JetBrains Mono',monospace;white-space:nowrap;">
+          <div class="spark-label spark-label-success">
             ↑ Otomatik Çözüldü
           </div>
         </div>
