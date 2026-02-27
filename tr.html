@@ -635,12 +635,13 @@ h3 { letter-spacing: -0.03em; }
   }
   .pilot-flex { flex-direction: column !important; }
   .pilot-flex > div { width: 100% !important; }
-  .dashboard-flex { flex-direction: column !important; }
+  .dashboard-flex { flex-direction: column !important; height: auto !important; overflow: visible !important; }
   .dashboard-flex > div { width: 100% !important; flex: none !important; }
   .dashboard-flex > div:first-child {
     border-right: none !important;
     border-bottom: 1px solid rgba(255,255,255,0.06) !important;
   }
+  .dashboard-flex .kpi-grid { grid-template-columns: 1fr 1fr !important; }
   #eventLog {
     height: 180px !important;
     overflow-y: auto !important;
@@ -659,6 +660,7 @@ h3 { letter-spacing: -0.03em; }
 @media (max-width: 420px) {
   .hero-headline { font-size: 1.95rem !important; line-height: 1.12 !important; }
   .section-pad { padding: 64px 0 !important; }
+  .kpi-grid { grid-template-columns: 1fr !important; }
 }
 @media (min-width: 769px) {
   .hamburger { display: none !important; }
@@ -978,7 +980,7 @@ h3 { letter-spacing: -0.03em; }
         <div class="browser-url">threshold.local/dashboard/hive</div>
       </div>
       <!-- Dashboard Content -->
-      <div class="dashboard-flex" style="display:flex; height:380px; overflow:hidden;">
+      <div class="dashboard-flex" style="display:flex; min-height:380px; overflow:hidden;">
         <!-- Left: Event Log -->
         <div style="width:40%; min-width:0; flex:0 0 40%; border-right:1px solid rgba(255,255,255,0.06); padding:24px; overflow:hidden;">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
@@ -990,7 +992,7 @@ h3 { letter-spacing: -0.03em; }
         </div>
         <!-- Right: KPI Cards -->
         <div style="flex:1; min-width:0; padding:24px; align-self:flex-start;">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="kpi-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
             <!-- Active Agents -->
             <div class="glass-card" style="padding:20px;">
               <span style="font-size:0.72rem;color:#475569;display:block;margin-bottom:8px;">Aktif Ajanlar</span>
@@ -1198,7 +1200,7 @@ h3 { letter-spacing: -0.03em; }
     </div>
     <!-- Bottom bar -->
     <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
-      <span style="font-size:0.78rem;color:#475569;">&copy; 2025 Threshold AI. Tüm hakları saklıdır.</span>
+      <span style="font-size:0.78rem;color:#475569;">&copy; 2026 Threshold AI. Tüm hakları saklıdır.</span>
       <span style="font-size:0.78rem;color:#475569;">Durmayı reddeden fabrikalar için ♥ ile yapıldı</span>
     </div>
   </div>
