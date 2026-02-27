@@ -606,13 +606,16 @@ h3 { letter-spacing: -0.03em; }
   .pilot-flex { flex-direction: column !important; }
   .pilot-flex > div { width: 100% !important; }
   .dashboard-flex { flex-direction: column !important; }
-  .dashboard-flex > div { flex: 1 1 auto !important; width: 100% !important; }
+  .dashboard-flex > div { width: 100% !important; flex: none !important; }
   .dashboard-flex > div:first-child {
     border-right: none !important;
     border-bottom: 1px solid rgba(255,255,255,0.06) !important;
-    overflow: hidden !important;
   }
-  #eventLog { font-size: 0.58rem !important; }
+  #eventLog {
+    height: 180px !important;
+    overflow-y: auto !important;
+    font-size: 0.58rem !important;
+  }
   .browser-chrome { overflow: hidden !important; }
   .bento-grid > .glass-card { padding: 20px !important; }
   #deliverablesCard { padding: 24px !important; }
@@ -975,18 +978,18 @@ h3 { letter-spacing: -0.03em; }
         <div class="browser-url">threshold.local/dashboard/hive</div>
       </div>
       <!-- Dashboard Content -->
-      <div class="dashboard-flex" style="display:flex;min-height:400px;">
+      <div class="dashboard-flex" style="display:flex; height:380px; overflow:hidden;">
         <!-- Left: Event Log -->
-        <div style="flex:0 0 40%;border-right:1px solid rgba(255,255,255,0.06);padding:24px;overflow:hidden;">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;">
+        <div style="width:40%; min-width:0; flex:0 0 40%; border-right:1px solid rgba(255,255,255,0.06); padding:24px; overflow:hidden;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
             <span class="pulse-dot"></span>
             <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#94A3B8;font-weight:600;letter-spacing:0.05em;">SYSTEM EVENTS</span>
           </div>
-          <div id="eventLog" style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;line-height:2.2;color:#94A3B8;">
+          <div id="eventLog" style="height:280px; overflow-y:auto; overflow-x:hidden; font-family:'JetBrains Mono',monospace;font-size:0.68rem;line-height:2.2;color:#94A3B8; padding-right:12px; scrollbar-width:thin; scrollbar-color:#475569 transparent;">
           </div>
         </div>
         <!-- Right: KPI Cards -->
-        <div style="flex:1;padding:24px;">
+        <div style="flex:1; min-width:0; padding:24px; align-self:flex-start;">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
             <!-- Active Agents -->
             <div class="glass-card" style="padding:20px;">
@@ -1353,6 +1356,15 @@ h3 { letter-spacing: -0.03em; }
       requestAnimationFrame(function() {
         line.classList.add('show');
       });
+
+      // Auto-scroll to bottom
+      eventLog.scrollTop = eventLog.scrollHeight;
+
+      // Limit visible log lines to 12
+      if (logLines.length > 12) {
+        var old = logLines.shift();
+        old.remove();
+      }
 
       currentLine++;
       if (currentLine >= events.length) {
