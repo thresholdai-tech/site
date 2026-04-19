@@ -1,0 +1,25 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://thresholdai.tech/api",
+      "service-desc": [
+        {
+          "href": "https://thresholdai.tech/openapi.json",
+          "type": "application/vnd.oai.openapi+json"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://thresholdai.tech/docs/api/",
+          "type": "text/html"
+        }
+      ],
+      "status": [
+        {
+          "href": "https://thresholdai.tech/api/health",
+          "type": "application/json"
+        }
+      ]
+    }
+  ]
+}

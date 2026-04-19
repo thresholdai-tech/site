@@ -1,0 +1,15 @@
+{
+  "serverInfo": {
+    "name": "Threshold AI Web MCP",
+    "version": "0.1.0"
+  },
+  "transport": {
+    "type": "streamable-http",
+    "endpoint": "https://thresholdai.tech/mcp"
+  },
+  "capabilities": {
+    "tools": true,
+    "resources": false,
+    "prompts": false
+  }
+}

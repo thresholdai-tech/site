@@ -1,0 +1,62 @@
+User-agent: *
+Allow: /
+Disallow: /.git/
+Disallow: /private/
+Disallow: /tmp/
+Content-Signal: ai-train=no, search=yes, ai-input=no
+
+User-agent: GPTBot
+Allow: /
+Disallow: /private/
+Disallow: /tmp/
+Content-Signal: ai-train=no, search=yes, ai-input=no
+
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /private/
+Disallow: /tmp/
+Content-Signal: ai-train=no, search=yes, ai-input=no
+
+User-agent: Claude-Web
+Allow: /
+Disallow: /private/
+Disallow: /tmp/
+Content-Signal: ai-train=no, search=yes, ai-input=no
+
+User-agent: Google-Extended
+Allow: /
+Disallow: /private/
+Disallow: /tmp/
+Content-Signal: ai-train=no, search=yes, ai-input=no
+
+User-agent: Amazonbot
+Allow: /
+Disallow: /private/
+Disallow: /tmp/
+Content-Signal: ai-train=no, search=yes, ai-input=no
+
+User-agent: anthropic-ai
+Allow: /
+Disallow: /private/
+Disallow: /tmp/
+Content-Signal: ai-train=no, search=yes, ai-input=no
+
+User-agent: Bytespider
+Allow: /
+Disallow: /private/
+Disallow: /tmp/
+Content-Signal: ai-train=no, search=yes, ai-input=no
+
+User-agent: CCBot
+Allow: /
+Disallow: /private/
+Disallow: /tmp/
+Content-Signal: ai-train=no, search=yes, ai-input=no
+
+User-agent: Applebot-Extended
+Allow: /
+Disallow: /private/
+Disallow: /tmp/
+Content-Signal: ai-train=no, search=yes, ai-input=no
+
+Sitemap: https://thresholdai.tech/sitemap.xml

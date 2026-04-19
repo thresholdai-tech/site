@@ -1,0 +1,12 @@
+{
+  "keys": [
+    {
+      "kty": "RSA",
+      "kid": "thresholdai-placeholder-key",
+      "use": "sig",
+      "alg": "RS256",
+      "n": "sXch_placeholder_public_modulus_for_discovery_only_5ZQ5q5nYw",
+      "e": "AQAB"
+    }
+  ]
+}

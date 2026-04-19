@@ -1,0 +1,9 @@
+{
+  "resource": "https://thresholdai.tech/api",
+  "authorization_servers": [
+    "https://thresholdai.tech"
+  ],
+  "scopes_supported": [
+    "api.read"
+  ]
+}

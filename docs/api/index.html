@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Threshold AI API Docs</title>
+  <meta name="description" content="Documentation for Threshold AI public API discovery endpoints.">
+  <style>
+    :root {
+      --bg: #0c1018;
+      --panel: #121826;
+      --text: #e2e8f0;
+      --muted: #93a3b8;
+      --accent: #38bdf8;
+      --border: #223048;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      background: radial-gradient(circle at 15% 10%, #152033 0, var(--bg) 40%);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: 2rem;
+      letter-spacing: -0.02em;
+    }
+    p { color: var(--muted); }
+    .card {
+      margin-top: 24px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 20px;
+    }
+    h2 {
+      margin: 0 0 8px;
+      font-size: 1.1rem;
+    }
+    code {
+      color: var(--accent);
+      font-size: 0.95rem;
+    }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>Threshold AI API Docs</h1>
+    <p>This page documents the public machine-readable endpoints exposed for agent and API discovery.</p>
+
+    <section class="card">
+      <h2>OpenAPI</h2>
+      <p>Specification URL: <a href="/openapi.json"><code>/openapi.json</code></a></p>
+    </section>
+
+    <section class="card">
+      <h2>Health Endpoint</h2>
+      <p>Endpoint: <a href="/api/health"><code>/api/health</code></a></p>
+      <p>Method: <code>GET</code></p>
+      <p>Response: JSON with service status.</p>
+    </section>
+
+    <section class="card">
+      <h2>Discovery</h2>
+      <p>API catalog: <a href="/.well-known/api-catalog"><code>/.well-known/api-catalog</code></a></p>
+      <p>Agent skills index: <a href="/.well-known/agent-skills/index.json"><code>/.well-known/agent-skills/index.json</code></a></p>
+    </section>
+  </main>
+</body>
+</html>

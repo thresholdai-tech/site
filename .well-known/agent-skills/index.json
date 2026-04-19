@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
+  "skills": [
+    {
+      "name": "site-overview",
+      "type": "skill-md",
+      "description": "Summarize Threshold AI's public site, positioning, and key navigation points.",
+      "url": "https://thresholdai.tech/.well-known/agent-skills/site-overview/SKILL.md",
+      "digest": "sha256:5423563cbdd1fcafec0773d2a296182f4c6f10f66eb72a622124c7522868934e"
+    }
+  ]
+}
