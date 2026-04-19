@@ -10,6 +10,12 @@
   Link: </docs/api/>; rel="service-doc"; type="text/html"
   Link: </.well-known/agent-skills/index.json>; rel="describedby"; type="application/json"
 
+/tr.html
+  Link: </.well-known/api-catalog>; rel="api-catalog"
+  Link: </openapi.json>; rel="service-desc"; type="application/vnd.oai.openapi+json"
+  Link: </docs/api/>; rel="service-doc"; type="text/html"
+  Link: </.well-known/agent-skills/index.json>; rel="describedby"; type="application/json"
+
 /robots.txt
   Content-Type: text/plain; charset=utf-8
 
