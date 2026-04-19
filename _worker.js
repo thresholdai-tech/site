@@ -4,7 +4,7 @@ const MARKDOWN_PATHS = {
   "/tr.html": "/tr.md"
 };
 
-const HOMEPAGE_PATHS = new Set(["/", "/index.html"]);
+const DISCOVERY_PATHS = new Set(["/", "/index.html", "/tr.html"]);
 
 const CONTENT_TYPE_OVERRIDES = {
   "/robots.txt": "text/plain; charset=utf-8",
@@ -30,6 +30,26 @@ function estimateTokens(markdownText) {
   return Math.max(1, Math.ceil(markdownText.length / 4));
 }
 
+function estimateTokensFromByteLength(byteLength) {
+  return Math.max(1, Math.ceil(byteLength / 4));
+}
+
+function ensureVaryAccept(headers) {
+  const current = headers.get("Vary");
+  if (!current) {
+    headers.set("Vary", "Accept");
+    return;
+  }
+
+  const varyValues = current
+    .split(",")
+    .map((value) => value.trim().toLowerCase());
+
+  if (!varyValues.includes("accept")) {
+    headers.set("Vary", `${current}, Accept`);
+  }
+}
+
 function addDiscoveryLinkHeaders(headers) {
   headers.append("Link", '</.well-known/api-catalog>; rel="api-catalog"');
   headers.append("Link", '</openapi.json>; rel="service-desc"; type="application/vnd.oai.openapi+json"');
@@ -40,8 +60,12 @@ function addDiscoveryLinkHeaders(headers) {
 function withHeaders(response, pathname) {
   const headers = new Headers(response.headers);
 
-  if (HOMEPAGE_PATHS.has(pathname)) {
+  if (DISCOVERY_PATHS.has(pathname)) {
     addDiscoveryLinkHeaders(headers);
+  }
+
+  if (pathname in MARKDOWN_PATHS) {
+    ensureVaryAccept(headers);
   }
 
   if (pathname === "/.well-known/api-catalog") {
@@ -91,8 +115,14 @@ export default {
         if (request.method === "HEAD") {
           const headHeaders = new Headers(markdownResponse.headers);
           headHeaders.set("Content-Type", "text/markdown; charset=utf-8");
-          headHeaders.set("x-markdown-tokens", "0");
-          if (HOMEPAGE_PATHS.has(pathname)) {
+          const contentLengthHeader = headHeaders.get("Content-Length");
+          const contentLength = contentLengthHeader ? Number.parseInt(contentLengthHeader, 10) : NaN;
+          const tokenEstimate = Number.isFinite(contentLength) && contentLength > 0
+            ? estimateTokensFromByteLength(contentLength)
+            : 0;
+          headHeaders.set("x-markdown-tokens", String(tokenEstimate));
+          ensureVaryAccept(headHeaders);
+          if (DISCOVERY_PATHS.has(pathname)) {
             addDiscoveryLinkHeaders(headHeaders);
           }
           return new Response(null, {
@@ -106,7 +136,8 @@ export default {
         const headers = new Headers(markdownResponse.headers);
         headers.set("Content-Type", "text/markdown; charset=utf-8");
         headers.set("x-markdown-tokens", String(estimateTokens(markdownText)));
-        if (HOMEPAGE_PATHS.has(pathname)) {
+        ensureVaryAccept(headers);
+        if (DISCOVERY_PATHS.has(pathname)) {
           addDiscoveryLinkHeaders(headers);
         }
 
