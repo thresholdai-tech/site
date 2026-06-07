@@ -12,21 +12,15 @@
     function createToolDefinitions() {
       return [
         {
-          name: "open_waitlist_email",
-          description: "Open the waitlist compose flow for Threshold AI.",
+          name: "open_waitlist_form",
+          description: "Open the waitlist signup form for Threshold AI.",
           inputSchema: {
             type: "object",
-            properties: {
-              subject: {
-                type: "string",
-                description: "Optional email subject"
-              }
-            },
+            properties: {},
             additionalProperties: false
           },
-          execute: function(input) {
-            var subject = input && input.subject ? input.subject : "Waitlist";
-            var href = "https://mail.google.com/mail/?view=cm&fs=1&to=info@thresholdai.tech&su=" + encodeURIComponent(subject);
+          execute: function() {
+            var href = "https://docs.google.com/forms/d/e/1FAIpQLSfPXl53oUkbrs2l2d1Z4i7Bg7gdE1nyONxbHYSNrqHkU9PCjQ/viewform";
             window.open(href, "_blank", "noopener,noreferrer");
             return {
               ok: true,

@@ -7,7 +7,7 @@ Threshold AI builds autonomous multi-agent manufacturing intelligence for waste 
 - Technology: autonomous waste classification and multi-agent protocol concepts.
 - Architecture: live dashboard preview for system health and event flow.
 - Roadmap: current R&D phase and expected rollout timeline.
-- Waitlist: early-access signup via `info@thresholdai.tech`.
+- Waitlist: early-access signup via [Google Form](https://docs.google.com/forms/d/e/1FAIpQLSfPXl53oUkbrs2l2d1Z4i7Bg7gdE1nyONxbHYSNrqHkU9PCjQ/viewform).
 
 ## API Discovery
 
